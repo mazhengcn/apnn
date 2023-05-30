@@ -3,12 +3,12 @@ requires = ["setuptools>=61.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "project_name"
+name = "APNN"
 version = "1.0.0"
 description = "Source code for project..."
 readme = "README.md"
 requires-python = ">=3.10"
-authors = [{ email = "Author Email" }, { name = "Author names" }]
+authors = [{ email = "mazhengcn@outlook.com" }, { name = "Zheng Ma" }]
 license = { text = "Apache License, Version 2.0" }
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
@@ -35,10 +35,7 @@ dependencies = [
 ]
 
 [project.urls]
-homepage = "project_url"
+homepage = "https://github.com/mazhengcn/apnn"
 
 [tool.setuptools]
-packages = ["project_name"]
-
-[tool.isort]
-profile = "black"
+packages = ["apnn"]

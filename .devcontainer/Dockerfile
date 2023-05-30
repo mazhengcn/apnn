@@ -13,5 +13,5 @@ RUN pip install --no-cache-dir --upgrade pip \
     && rm -rf /tmp/pip-tmp
 
 FROM base
-COPY --from=pip-installs /opt/venv /opt/venv
+COPY --from=pip-installs --chmod=777 /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
