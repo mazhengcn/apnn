@@ -18,9 +18,9 @@ class Split(enum.Enum):
 
 
 def load(
-    name: str,
+    name: str | None = None,
     *,
-    split: Split,
+    split: Split | None = None,
     split_percentage: str = "",
     tfds_dir: str | os.PathLike | None = None,
     is_training: bool = False,
@@ -36,14 +36,17 @@ def load(
     # {repeat} steps of different collocation points
     batch_repeat: Optional[int | None] = None,
 ) -> Generator[FeatureDict, None, None]:
-    tfds_split = _to_tfds_split(split, split_percentage)
-    ds, info = tfds.load(
-        name,
-        data_dir=tfds_dir,
-        split=tfds_split,
-        shuffle_files=True,
-        with_info=True,
-    )
+    if name:
+        tfds_split = _to_tfds_split(split, split_percentage)
+        ds, info = tfds.load(
+            name,
+            data_dir=tfds_dir,
+            split=tfds_split,
+            shuffle_files=True,
+            with_info=True,
+        )
+    else:
+        ds = tf.data.Dataset.range(1)
     # tf.data options
     options = tf.data.Options()
     options.threading.private_threadpool_size = 48
@@ -57,16 +60,18 @@ def load(
     if is_training:
         ds = ds.cache()
         ds = ds.repeat()
-        ds = ds.shuffle(
-            buffer_size=info.splits[tfds_split].num_examples,
-            reshuffle_each_iteration=True,
-        )
+        if name:
+            ds = ds.shuffle(
+                buffer_size=info.splits[tfds_split].num_examples,
+                reshuffle_each_iteration=True,
+            )
 
         if batch_repeat:
             ds = repeat_batch(batch_sizes, batch_repeat)(ds)
 
-    for batch_size in reversed(batch_sizes):
-        ds = ds.batch(batch_size, drop_remainder=True)
+    if batch_sizes:
+        for batch_size in reversed(batch_sizes):
+            ds = ds.batch(batch_size, drop_remainder=True)
 
     if is_training and collocation_sizes:
         rng = tf.random.Generator.from_seed(seed=0)

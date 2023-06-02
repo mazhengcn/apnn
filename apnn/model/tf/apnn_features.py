@@ -14,25 +14,22 @@ class FeatureType(enum.Enum):
     TWO_DIM = 2
 
 
-NUM_DIM = 2
+NUM_DIM = 1
 # Placeholder values that will be replaced with their true value at runtime.
-NUM_POSITION_COORDS = "num position coordinates placeholder"
-NUM_VELOCITY_COORDS = "num velocity coordinates placeholder"
+NUM_TIME_STAMPS = "num time stamps placeholder"
 NUM_PHASE_COORDS = "num phase coordinates placeholder"
 NUM_BOUNDARY_COORDS = "num boundary coordinates placeholder"
+NUM_INITIAL_COORDS = "num initial coordinates placeholder"
+NUM_VELOCITY_COORDS = "num velocity coordinates placeholder"
 
 FEATURES = {
     # Static features of RTE #
+    "time_stamps": (tf.float32, [NUM_TIME_STAMPS, 1]),
     "phase_coords": (tf.float32, [NUM_PHASE_COORDS, 2 * NUM_DIM]),
     "boundary_coords": (tf.float32, [NUM_BOUNDARY_COORDS, 2 * NUM_DIM]),
-    "boundary_weights": (tf.float32, [NUM_BOUNDARY_COORDS]),
-    "position_coords": (tf.float32, [NUM_POSITION_COORDS, NUM_DIM]),
+    "initial_coords": (tf.float32, [NUM_INITIAL_COORDS, 2 * NUM_DIM]),
     "velocity_coords": (tf.float32, [NUM_VELOCITY_COORDS, NUM_DIM]),
     "velocity_weights": (tf.float32, [NUM_VELOCITY_COORDS]),
-    "boundary": (tf.float32, [NUM_BOUNDARY_COORDS]),
-    "some_functions_1": (tf.float32, [NUM_POSITION_COORDS, 3]),
-    "some_functions_2": (tf.float32, [NUM_PHASE_COORDS, 1]),
-    "some_parameter": (tf.int32, [NUM_DIM]),
 }
 
 FEATURE_TYPES = {k: v[0] for k, v in FEATURES.items()}
@@ -55,7 +52,11 @@ def register_feature(name: str, type_: tf.dtypes.DType, shape_: tuple[str | int]
 
 def shape(
     feature_name: str,
-    num_position_coords: int | None = None,
+    num_time_stamps: int,
+    num_phase_coords: int,
+    num_boundary_coords: int,
+    num_initial_coords: int,
+    num_velocity_coords: int,
     features: Optional[FeaturesMetadata] = None,
 ):
     """Get the shape for the given feature name.
@@ -77,7 +78,11 @@ def shape(
     unused_dtype, raw_sizes = features[feature_name]
 
     replacements = {
-        NUM_POSITION_COORDS: num_position_coords,
+        NUM_TIME_STAMPS: num_time_stamps,
+        NUM_PHASE_COORDS: num_phase_coords,
+        NUM_BOUNDARY_COORDS: num_boundary_coords,
+        NUM_INITIAL_COORDS: num_initial_coords,
+        NUM_VELOCITY_COORDS: num_velocity_coords,
     }
 
     sizes = [replacements.get(dimension, dimension) for dimension in raw_sizes]
